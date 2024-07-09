@@ -9,7 +9,7 @@ def phase_velocities(c):
     v_nf = np.sqrt(2. * c["nominal_tether_force"] / (c["atmosphere_density"] * c["kite_planform_area"] * c["force_factor_out"] * (np.cos(c["elevation_angle_out"]) - c["f_out_unconstrained"])**2))
 
     # regime 2 -> regime 3
-    v_np = v_nf * (1 + (c["nominal_generator_power"]/(c["nominal_tether_force"] * v_nf) - c["f_out_unconstrained"]) / np.cos(c["elevation_angle_out"]))
+    v_np = v_nf * (1 + (c["nominal_generator_power_out"]/(c["nominal_tether_force"] * v_nf) - c["f_out_unconstrained"]) / np.cos(c["elevation_angle_out"]))
 
     return v_nf, v_np
 
@@ -29,7 +29,7 @@ def f_out_vw(v_w, c):
     return result
 
 def adapted_elevation_angle_out(v_w, c):
-    ''' Computes the reel-out elevation angle for all wind speeds. '''
+    ''' Computes the reel-out elevation angle for all wind speeds. Reel-out elevation angle is increased in regime 3 to decrease the efficiency, thus keeping the power below/at the limit. '''
     _, v_np = phase_velocities(c)
 
     # regime 1 & 2
@@ -57,8 +57,7 @@ def power_curve(v_w, c):
     for v, f, b in zip(v_w, reeling_factor_out, reel_out_angles):
         c["elevation_angle_out"] = b
         c["f_out"] = f
-
-        cycle_power.append(-negative_cycle_power([f], c) * c["kite_planform_area"] * 0.5 * c["atmosphere_density"] * v**3)
+        c["wind_speed"] = v
 
         p_in_avg, t_in = average_reel_in_power_and_time(c)
         power_in.append(p_in_avg * c["kite_planform_area"] * 0.5 * c["atmosphere_density"] * v**3)
@@ -67,9 +66,22 @@ def power_curve(v_w, c):
         p_out, t_out = reel_out_power_and_time(c)
         power_out.append(p_out * c["kite_planform_area"] * 0.5 * c["atmosphere_density"] * v**3)
         time_out.append(t_out / v)
-        pass
 
-    c["f_out"] = reeling_factor_out[0]
-    c["elevation_angle_out"] = reel_out_angles[0]
+        cycle_power.append((p_out*t_out + p_in_avg*t_in) / (t_out + t_in) * c["kite_planform_area"] * 0.5 * c["atmosphere_density"] * v**3)
+        pass
     
     return velocity_bounds, reeling_factor_out, reel_out_angles, np.array(power_out), np.array(power_in), np.array(cycle_power), np.array(time_out), np.array(time_in)
+
+
+def reel_in_trajectory(vw, c):
+    ''' Computes relevant quantities for the reel-in trajectory at wind speed vw. '''
+    c["f_out_unconstrained"] = optimal_f_out(c)
+    c["f_out"] = f_out_vw(vw, c)[0]
+    c["elevation_angle_out"] = adapted_elevation_angle_out(vw, c)[0]
+    c["wind_speed"] = vw[0]
+
+    b = beta_in_l(c)
+    f = f_in_b(b, c)
+    p = -c["force_factor_in"] * (np.cos(b)-f)**2 * c["kite_planform_area"] * 0.5 * c["atmosphere_density"] * vw**3
+
+    return b, f, p
