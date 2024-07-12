@@ -1,10 +1,10 @@
 # QSM reel-in
-## Implementation of a quasi-steady reel-in for power curve computation of Airborne Wind Energy.
+## Implementation of a quasi-steady reel-in for power curve computation of Airborne Wind Energy
 
 This project extends the power computations performed in https://github.com/awecourse/resources to include a QSM model of the reel-in phase instead of an asymptotic reel-in trajectory.
 
 
-### Theoretical background
+### Description
 
 The performance analysis of an airborne wind energy system is performed as described in [1], using the control strategy first described in [2], specifically implementing a constant reel-in glide ratio, thus suitable for soft kites. The simulation of the reel-in is extended using the approach described in [3].
 

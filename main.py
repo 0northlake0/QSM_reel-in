@@ -84,7 +84,7 @@ elevation_angle_out         =  25         # deg
 min_reel_in_speed           =  -8         # m/s
 
 # Computation parameters
-tether_length_samples       = 2**8 + 1
+tether_length_samples       = 2**8 + 1    # -
 
 # Derived properties
 rm_out = 0.5 * (tether_length_min + tether_length_max)
@@ -101,7 +101,7 @@ sample_spacing = (tether_length_max - tether_length_min)/(tether_length_samples-
 
 
 # all inputs / constants
-inputs = {"elevation_angle_out" : elevation_angle_out, "force_factor_out" : force_factor_out, "force_factor_in" : force_factor_in, "E_in" : E_in, "tether_length_max" : tether_length_max, "tether_length_min" : tether_length_min, "nominal_tether_force" : nominal_tether_force, "kite_planform_area" : kite_planform_area, "atmosphere_density" : atmosphere_density, "nominal_generator_power_out" : nominal_generator_power_out, "nominal_generator_power_in" : nominal_generator_power_in, "min_reel_in_speed" : min_reel_in_speed, "wind_speed": None, "l_range" : l_range, "sample_spacing" : sample_spacing}
+inputs = {"elevation_angle_out" : elevation_angle_out, "force_factor_out" : force_factor_out, "force_factor_in" : force_factor_in, "E_in" : E_in, "tether_length_max" : tether_length_max, "tether_length_min" : tether_length_min, "nominal_tether_force" : nominal_tether_force, "kite_planform_area" : kite_planform_area, "atmosphere_density" : atmosphere_density, "nominal_generator_power_out" : nominal_generator_power_out, "nominal_generator_power_in" : nominal_generator_power_in, "min_reel_in_speed" : min_reel_in_speed, "wind_speed": 1e-3, "l_range" : l_range, "sample_spacing" : sample_spacing}
 
 
 # Power curve
@@ -109,5 +109,5 @@ velocity_range = np.linspace(1, 20, 191)  # Wind speed range of interest (m/s)
 plot_power_curve(velocity_range, inputs.copy())
 
 # Reel-in trajectory
-wind_speed = 10.  # m/s
+wind_speed = 15.  # m/s
 plot_single_reel_in_trajectory(wind_speed, inputs.copy())
